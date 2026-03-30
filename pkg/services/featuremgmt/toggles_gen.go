@@ -925,4 +925,8 @@ const (
 	// FlagQueryServiceQueryCaching
 	// Enables the query service to do query caching
 	FlagQueryServiceQueryCaching = "queryServiceQueryCaching"
+
+	// FlagInlinedBootScript
+	// Boots the frontend using the boot.js script built from TS instead of the embedded boot script
+	FlagInlinedBootScript = "inlinedBootScript"
 )
