@@ -175,8 +175,10 @@ export interface PluginInclude {
   // The action will take precedence over the role.
   action?: string;
 
-  // Adds the "page" or "dashboard" type includes to the navigation if set to `true`.
-  addToNav?: boolean;
+  // Controls whether this include appears in the navigation menu.
+  // Set to `true` to always include, `false` to never include, or a feature flag
+  // name (string) to include only when that flag is enabled.
+  addToNav?: boolean | string;
 
   // Angular app pages
   component?: string;

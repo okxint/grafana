@@ -143,7 +143,7 @@ type MetaInclude struct {
 	Role       *MetaIncludeRole `json:"role,omitempty"`
 	Action     *string          `json:"action,omitempty"`
 	Path       *string          `json:"path,omitempty"`
-	AddToNav   *bool            `json:"addToNav,omitempty"`
+	AddToNav   any              `json:"addToNav,omitempty"`
 	DefaultNav *bool            `json:"defaultNav,omitempty"`
 	Icon       *string          `json:"icon,omitempty"`
 }
