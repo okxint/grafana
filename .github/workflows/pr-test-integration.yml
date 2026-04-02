@@ -379,7 +379,92 @@ jobs:
         if: ${{ matrix.graphite.compose != '' && matrix.graphite.compose != null }}
         run: |
           docker compose -f ${{ matrix.graphite.compose }} up -d
-          timeout 90 bash -c 'until curl -sf http://localhost:8480/; do sleep 3; done'
+
+          # Wait for go-carbon's carbonserver HTTP to accept connections.
+          # Port 8580 on the host maps to go-carbon:8080 (carbonserver).
+          # We accept any HTTP response (even 500) — we just need the server to be up.
+          # This must complete before polling carbonapi, as carbonapi connects to
+          # go-carbon on startup and may hang/crash if the backend is not yet ready.
+          echo "Waiting for go-carbon carbonserver (port 8580)..."
+          timeout 60 bash -c '
+            until curl -s -o /dev/null -w "%{http_code}" "http://localhost:8580/metrics/find?query=test&format=json" | grep -qE "^[0-9]{3}$"; do
+              sleep 2
+            done
+          '
+
+          # Seed the metric now, before waiting for carbonapi.  Seeding early gives
+          # go-carbon's write loop and index scanner the maximum time to process the
+          # file before tests run.
+          # go-carbon returns HTTP 500 from /metrics/find until at least one whisper
+          # file exists; fake-carbonapi-data has a startup race so we seed directly.
+          # Use python3 (always available on Ubuntu runners) instead of nc, because
+          # Ubuntu's netcat-openbsd does not support the GNU -q flag.
+          echo "Seeding test metric into go-carbon..."
+          # Use a flat (no-dot) metric name so query=* returns it as a top-level leaf.
+          # Multi-segment names (e.g. integration.test.metric) require non-leaf directory
+          # traversal which go-carbon's trigram index returns 500 for when only 1 metric
+          # exists; a flat name avoids this edge case entirely.
+          python3 -c "import socket,time; s=socket.socket(); s.connect(('localhost',2013)); s.sendall(b'grafanatest 42 '+str(int(time.time())).encode()+b'\n'); s.close(); print('Seeded grafanatest')"
+          # Allow the write loop to flush the metric to a whisper file on disk.
+          sleep 3
+
+          # Wait for carbonapi to be up. constantLine() is evaluated by carbonapi
+          # itself and needs no backend, so it returns 200 as soon as the process starts.
+          echo "Waiting for carbonapi (port 8480)..."
+          timeout 90 bash -c '
+            until curl -sf "http://localhost:8480/render?target=constantLine(1)&format=json&from=-1min" > /dev/null; do
+              sleep 3
+            done
+          ' || {
+            echo "ERROR: carbonapi did not become ready. Container logs:"
+            docker compose -f ${{ matrix.graphite.compose }} logs carbonapi --tail=30
+            docker compose -f ${{ matrix.graphite.compose }} logs go-carbon --tail=20
+            exit 1
+          }
+
+          # Verify go-carbon's index directly (port 8580, bypasses carbonapi's cache).
+          # scan-frequency=3s means the trie-index is rebuilt within ~3s of the
+          # whisper file appearing.  We query for "grafanatest" specifically (the flat
+          # metric we seeded) and grep the response body for the metric name.
+          # NOTE: query=* on go-carbon returns 500 when top-level entries are only
+          # directory nodes (multi-segment metrics from fake-carbonapi-data); querying
+          # by name is reliable regardless of what else is in the index.
+          # NOTE: go-carbon's carbonserver returns HTTP 301 for /metrics/find (no
+          # trailing slash); use the trailing-slash URL to avoid the redirect.
+          echo "Waiting for go-carbon index to include seeded metric (direct check)..."
+          timeout 90 bash -c '
+            until curl -sL "http://localhost:8580/metrics/find/?query=grafanatest&format=json" 2>/dev/null | grep -q "grafanatest"; do
+              sleep 2
+            done
+          ' || {
+            echo "ERROR: go-carbon index not ready after 90s. Diagnostics:"
+            echo "=== go-carbon direct response ==="
+            curl -vL "http://localhost:8580/metrics/find/?query=grafanatest&format=json" 2>&1 || true
+            echo "=== go-carbon logs ==="
+            docker compose -f ${{ matrix.graphite.compose }} logs go-carbon --tail=40
+            exit 1
+          }
+
+          # Now wait for carbonapi's metrics/find to agree.
+          # Carbonapi caches find results (defaultTimeoutSec=10); also the find timeout
+          # between carbonapi and go-carbon may add latency on slow CI runners.
+          # Grep body for the metric name — carbonapi returns HTTP 200 with [] (empty)
+          # for unknown metrics, so checking status alone is not sufficient.
+          echo "Waiting for carbonapi metrics/find to reflect indexed metric..."
+          timeout 90 bash -c '
+            until curl -s "http://localhost:8480/metrics/find?query=grafanatest&format=json" 2>/dev/null | grep -q "grafanatest"; do
+              sleep 2
+            done
+          ' || {
+            echo "ERROR: carbonapi metrics/find not ready. Diagnostics:"
+            echo "=== carbonapi response ==="
+            curl -v "http://localhost:8480/metrics/find?query=grafanatest&format=json" 2>&1 || true
+            echo "=== go-carbon direct response ==="
+            curl -vL "http://localhost:8580/metrics/find/?query=grafanatest&format=json" 2>&1 || true
+            echo "=== carbonapi logs ==="
+            docker compose -f ${{ matrix.graphite.compose }} logs carbonapi --tail=40
+            exit 1
+          }
 
       - name: Build and start bookingcom/carbonapi
         if: ${{ matrix.graphite.build == 'source' }}
