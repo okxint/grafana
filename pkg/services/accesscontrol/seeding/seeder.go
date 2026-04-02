@@ -402,6 +402,27 @@ func (s *Seeder) ClearPluginRoles(ID string) {
 	}
 }
 
+// ForcePluginCleanups forcibly removes a plugin's roles and basic-role permissions.
+// This is used when a plugin has been permanently uninstalled and its RBAC data is orphaned.
+// For each plugin ID, it:
+//   1. Sets seededPlugins[pluginID] = true (disarms the resilience guard)
+//   2. Clears the plugin's permissions from basic roles
+//   3. Clears the plugin's roles from the seeded set
+func (s *Seeder) ForcePluginCleanups(pluginIDs []string) {
+	for _, pluginID := range pluginIDs {
+		if pluginID == "" {
+			continue
+		}
+		s.log.Info("Forcing cleanup of plugin roles and permissions", "pluginID", pluginID)
+		// Disarm the resilience guard that would otherwise skip this plugin
+		s.seededPlugins[pluginID] = true
+		// Remove the plugin's permissions from basic roles
+		s.ClearBasicRolesPluginPermissions(pluginID)
+		// Remove the plugin's roles from the seeded set
+		s.ClearPluginRoles(pluginID)
+	}
+}
+
 func (s *Seeder) MarkSeededAlready() {
 	s.hasSeededAlready = true
 }
