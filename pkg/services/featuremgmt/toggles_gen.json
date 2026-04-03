@@ -924,13 +924,17 @@
     {
       "metadata": {
         "name": "analyticsFramework",
-        "resourceVersion": "1772205128141",
-        "creationTimestamp": "2026-02-27T15:12:08Z"
+        "resourceVersion": "1775304354868",
+        "creationTimestamp": "2026-02-27T15:12:08Z",
+        "annotations": {
+          "grafana.app/updatedTimestamp": "2026-04-04 12:05:54.86836 +0000 UTC"
+        }
       },
       "spec": {
         "description": "Enables new analytics framework",
         "stage": "experimental",
         "codeowner": "@grafana/grafana-frontend-platform",
+        "frontend": true,
         "hideFromDocs": true,
         "expression": "false"
       }
@@ -2570,13 +2574,17 @@
     {
       "metadata": {
         "name": "inlineLogDetailsNoScrolls",
-        "resourceVersion": "1772636622548",
-        "creationTimestamp": "2026-03-04T15:03:42Z"
+        "resourceVersion": "1775304354868",
+        "creationTimestamp": "2026-03-04T15:03:42Z",
+        "annotations": {
+          "grafana.app/updatedTimestamp": "2026-04-04 12:05:54.86836 +0000 UTC"
+        }
       },
       "spec": {
         "description": "Enables an inline version of Log Details that creates no new scrolls",
         "stage": "experimental",
         "codeowner": "@grafana/observability-logs",
+        "frontend": true,
         "expression": "false"
       }
     },
