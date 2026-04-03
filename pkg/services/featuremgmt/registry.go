@@ -1137,7 +1137,7 @@ var (
 			Description: "Enables the Assistant button in the dashboard templates card",
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaSharingSquad,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "false",
 		},
 		{
@@ -1145,7 +1145,7 @@ var (
 			Description: "Enables the 'Customize with Assistant' button on suggested dashboard cards",
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaSharingSquad,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "false",
 		},
 		{
@@ -1861,7 +1861,7 @@ var (
 			Name:        "logsPanelControls",
 			Description: "Enables a control component for the logs panel in Explore",
 			Stage:       FeatureStagePublicPreview,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Owner:       grafanaObservabilityLogsSquad,
 			Expression:  "true",
 		},
@@ -2016,7 +2016,7 @@ var (
 			Description: "Enables recently viewed dashboards section in the browsing dashboard page",
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaFrontendNavigation,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "false",
 		},
 		{
@@ -2033,7 +2033,7 @@ var (
 			Description: "Enables the created by me search filter on the browse dashboards page",
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaFrontendNavigation,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "false",
 		},
 		{
@@ -2145,7 +2145,7 @@ var (
 			Name:        "otelLogsFormatting",
 			Description: "Applies OTel formatting templates to displayed logs",
 			Stage:       FeatureStageExperimental,
-			Generate:    GenerateLegacyFrontend | GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Owner:       grafanaObservabilityLogsSquad,
 			Expression:  "false",
 		},
@@ -2206,7 +2206,7 @@ var (
 			Description: "New Log Context component",
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaObservabilityLogsSquad,
-			Generate:    GenerateLegacyFrontend | GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "false",
 		},
 		{
@@ -2538,7 +2538,7 @@ var (
 			Name:        "dashboardSectionVariables",
 			Description: "Enables support for section level variables (rows and tabs)",
 			Stage:       FeatureStageExperimental,
-			Generate:    GenerateLegacyFrontend | GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Owner:       grafanaDashboardsSquad,
 			Expression:  "false",
 		},
@@ -2589,7 +2589,7 @@ var (
 			Name:        "queryEditorNext",
 			Description: "Enables next generation query editor experience",
 			Stage:       FeatureStagePrivatePreview,
-			Generate:    GenerateLegacyFrontend | GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Owner:       grafanaDataProSquad,
 			Expression:  "false",
 		},
@@ -2832,7 +2832,7 @@ var (
 			Owner:        grafanaFrontendPlatformSquad,
 			HideFromDocs: true,
 			Expression:   "false",
-			Generate:     GenerateReact,
+			Generate:     GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 		},
 		{
 			Name:            "datasourcesApiServerEnableHealthEndpointFrontend",
@@ -2848,7 +2848,7 @@ var (
 			Description: "Enables the new Flame Graph UI containing the Call Tree view",
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaObservabilityTracesAndProfilingSquad,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "false",
 		},
 		{
@@ -2865,7 +2865,7 @@ var (
 			Stage:       FeatureStageExperimental,
 			Owner:       grafanaObservabilityLogsSquad,
 			Expression:  "false",
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 		},
 		{
 			Name:            "colorblindThemes",
@@ -2916,7 +2916,7 @@ var (
 			Description: "Enables the splash screen modal for introducing new Grafana features on first session",
 			Stage:       FeatureStagePublicPreview,
 			Owner:       grafanaFrontendPlatformSquad,
-			Generate:    GenerateReact,
+			Generate:    GenerateLegacyFrontend | GenerateReact, // legacy frontend for old naming convention
 			Expression:  "true",
 		},
 		{
